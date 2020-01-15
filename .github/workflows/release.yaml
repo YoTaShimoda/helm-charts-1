@@ -45,10 +45,13 @@ jobs:
       - name: Run chart-testing (install)
         uses: docker://quay.io/helmpack/chart-testing:v3.0.0-beta.1
         with:
-          entrypoint: ct
-          args: install --all
-        env:
-          KUBECONFIG: /github/home/.kube/config
+          entrypoint: /bin/sh
+          args: |
+            -c " \
+                mkdir -p /root/.kube; \
+                cp $HOME/.kube/config /root/.kube/config; \
+                ct install --all
+            "
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.0.0-alpha.2
