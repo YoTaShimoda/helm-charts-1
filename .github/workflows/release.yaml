@@ -40,7 +40,12 @@ jobs:
       - name: Create kind cluster
         uses: helm/kind-action@v1.0.0-alpha.3
         with:
-          installLocalPathProvisioner: true
+          install_local_path_provisioner: true
+
+      - name: Run chart-testing (install)
+        uses: helm/chart-testing-action@v1.0.0-alpha.3
+        with:
+          command: install
 
       - name: Run chart-testing (install)
         uses: docker://quay.io/helmpack/chart-testing:v3.0.0-beta.1
