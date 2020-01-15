@@ -30,46 +30,19 @@ jobs:
           helm repo add stable https://kubernetes-charts.storage.googleapis.com/
           helm repo add elastic https://helm.elastic.co
 
-      - name: Run chart-testing (list-changed)
-        id: list-changed
-        uses: docker://quay.io/helmpack/chart-testing:v3.0.0-beta.1
-        with:
-          entrypoint: /bin/sh
-          args: |
-            -c "\
-              echo 'Running `ct list-changed`...'; \
-              changed=$(ct list-changed); \
-              if [ -z \"$changed\" ]; then \
-                echo 'No chart changes detected.'; \
-                echo '::set-output name=changed::false'; \
-              else \
-                echo 'Detected chart changes.'; \
-                echo '::set-output name=changed::true'; \
-              fi \
-            "
-
-      - name: Run chart-testing (lint)
-        id: lint
-        uses: docker://quay.io/helmpack/chart-testing:v3.0.0-beta.1
-        with:
-          entrypoint: ct
-          args: lint --debug
-        if: steps.list-changed.outputs.changed == 'true'
-
       - name: Create kind cluster
         uses: helm/kind-action@v1.0.0-alpha.3
         with:
           installLocalPathProvisioner: true
-        if: steps.list-changed.outputs.changed == 'true'
 
-      - name: Run chart-testing (install)
-        uses: helm/chart-testing-action@v1.0.0-alpha.3
+      - name: Run chart-testing (lint and install)
+        id: lint
+        uses: docker://quay.io/helmpack/chart-testing:v3.0.0-beta.1
         with:
-          command: install
-        if: steps.list-changed.outputs.changed == 'true'
+          entrypoint: ct
+          args: lint-and-install --all
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.0.0-alpha.2
         env:
           CR_TOKEN: "${{ secrets.CR_TOKEN }}"
-        if: steps.list-changed.outputs.changed == 'true'
