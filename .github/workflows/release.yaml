@@ -45,7 +45,7 @@ jobs:
       - name: Run chart-testing (install)
         uses: helm/chart-testing-action@v1.0.0-alpha.3
         with:
-          command: install
+          command: install --all
 
       - name: Run chart-testing (install)
         uses: docker://quay.io/helmpack/chart-testing:v3.0.0-beta.1
